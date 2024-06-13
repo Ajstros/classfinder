@@ -43,7 +43,7 @@ def get_classes(year, term, subjects):
 
     Returns
     -------
-    class_dict : pd.DataFrame
+    classes_df : pd.DataFrame
         DataFrame of the classes found including the Course number, the class Title, and its Description.
     """
 
@@ -54,7 +54,7 @@ def get_classes(year, term, subjects):
 
     subject_course_elems = soup.find_all("div", class_=["course", "cf"])
 
-    class_dict = {"Course": [], "Title": [], "Description": []}
+    class_dict = {"Course": [], "Section": [], "Title": [], "Description": []}
     current_subject = ''
 
     for elem in subject_course_elems :
@@ -63,15 +63,17 @@ def get_classes(year, term, subjects):
             current_subject = elem.text.strip().split(':')[0]
         else:
             # Course
-            course = f'{current_subject} {elem.span.text}'
+            course_number, course_section = elem.span.text.split('-')
+            course = f'{current_subject} {course_number}'
             title = elem.strong.text
             json_data = json.loads(elem.script.text, strict=False)
             description = json_data['description'].strip()
             class_dict["Course"].append(course)
+            class_dict["Section"].append(course)
             class_dict["Title"].append(title)
             class_dict["Description"].append(description)
-    df = pd.DataFrame(class_dict)
-    return df
+    classes_df = pd.DataFrame(class_dict)
+    return classes_df
 
 def get_major_classes(major_classes_file_path):
     """Get the classes that apply to a major from a CSV list in the file path given.
@@ -90,6 +92,25 @@ def get_major_classes(major_classes_file_path):
     with open(major_classes_file_path, 'r') as f:
         lines = f.readline()
     return lines.strip().split(',')
+
+def select_major_classes(classes_df, major_classes_file_path):
+    """Select only the classes that apply to a major from a DataFrame of classes.
+
+    Parameters
+    ----------
+    classes_df : pd.DataFrame
+        DataFrame of classes including the Course number, the class Title, and its Description.
+    major_classes_file_path : str
+        Path to the CSV containing a list of major classes. E.g. "ETLS 676, ETLS 679".
+
+    Returns
+    -------
+    major_classes_only_df : pd.DataFrame
+        DataFrame of classes that apply to a major from the given classes including the Course number, the class Title, and its Description.
+    """
+
+    major_classes = get_major_classes(major_classes_file_path)
+    return df[df["Course"].isin(major_classes)]
 
 if __name__ == "__main__":
     year = 2024
