@@ -9,7 +9,7 @@ DEFAULT_OUTPUT_PATH = "classes.csv"
 DEFAULT_MAJOR_CLASSES_PATH = "major_classes.csv"
 DEFAULT_TAKEN_CLASSES_PATH = "taken_classes.csv"
 
-def term_str_to_code(term_string):
+def term_str_to_code(term_string: str) -> int:
     """Convert term string to code for URL.
 
     Parameters
@@ -31,7 +31,7 @@ def term_str_to_code(term_string):
     }
     return term_dict[term_string.lower()]
 
-def get_classes(year, term, subjects):
+def get_classes(year: int, term: str, subjects: list[str]) -> pd.DataFrame:
     """Get the classes for a specific year and term.
 
     Parameters
@@ -40,7 +40,7 @@ def get_classes(year, term, subjects):
         The year to search classes for.
     term : str
         The string version of the term to search classes for. Case insensitive. fall, summer, spring, j-term.
-    subjects : List[str]
+    subjects : list[str]
         A list of subject codes to search for. E.g. ["ETLS", "SEIS"].
 
     Returns
@@ -77,7 +77,7 @@ def get_classes(year, term, subjects):
     classes_df = pd.DataFrame(class_dict)
     return classes_df
 
-def read_major_classes(major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
+def read_major_classes(major_classes_file_path: str=DEFAULT_MAJOR_CLASSES_PATH) -> list[str]:
     """Read the classes that apply to a major from a CSV list in the file path given.
 
     Parameters
@@ -87,7 +87,7 @@ def read_major_classes(major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
 
     Returns
     -------
-    major_classes : List[str]
+    major_classes : list[str]
         A list of the major classes from the CSV. E.g. ["ETLS 676", "ETLS 679"].
     """
 
@@ -95,7 +95,7 @@ def read_major_classes(major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
         lines = f.readline()
     return lines.strip().split(',')
 
-def read_taken_classes(taken_classes_file_path=DEFAULT_TAKEN_CLASSES_PATH):
+def read_taken_classes(taken_classes_file_path: str=DEFAULT_TAKEN_CLASSES_PATH) -> list[str]:
     """Read the classes that you have taken from a CSV list in the file path given.
 
     Parameters
@@ -105,7 +105,7 @@ def read_taken_classes(taken_classes_file_path=DEFAULT_TAKEN_CLASSES_PATH):
 
     Returns
     -------
-    taken_classes : List[str]
+    taken_classes : list[str]
         A list of the taken classes from the CSV. E.g. ["ETLS 676", "ETLS 679"].
     """
 
@@ -113,7 +113,7 @@ def read_taken_classes(taken_classes_file_path=DEFAULT_TAKEN_CLASSES_PATH):
         lines = f.readline()
     return lines.strip().split(',')
 
-def select_major_classes(classes_df, major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
+def select_major_classes(classes_df: pd.DataFrame, major_classes_file_path: str=DEFAULT_MAJOR_CLASSES_PATH) -> pd.DataFrame:
     """Select only the classes that apply to a major from a DataFrame of classes.
 
     Parameters
@@ -130,9 +130,9 @@ def select_major_classes(classes_df, major_classes_file_path=DEFAULT_MAJOR_CLASS
     """
 
     major_classes = read_major_classes(major_classes_file_path)
-    return classes_df[classes_df["Course"].isin(major_classes)].copy()
+    return classes_df.loc[classes_df["Course"].isin(major_classes)].copy()
 
-def select_not_taken_classes(classes_df, taken_classes_file_path=DEFAULT_TAKEN_CLASSES_PATH):
+def select_not_taken_classes(classes_df: pd.DataFrame, taken_classes_file_path: str=DEFAULT_TAKEN_CLASSES_PATH) -> pd.DataFrame:
     """Select only the classes that have not been taken from a DataFrame of classes.
 
     Parameters
@@ -149,13 +149,19 @@ def select_not_taken_classes(classes_df, taken_classes_file_path=DEFAULT_TAKEN_C
     """
 
     taken_classes = read_taken_classes(taken_classes_file_path)
-    return classes_df[~classes_df["Course"].isin(taken_classes)].copy()
+    return classes_df.loc[~classes_df["Course"].isin(taken_classes)].copy()
 
-def get_major_classes(year, term, subjects, major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
+def get_major_classes(year: int, term: str, subjects: list[str], major_classes_file_path: str=DEFAULT_MAJOR_CLASSES_PATH) -> pd.DataFrame:
     """Get only the classes that apply to a major from the classfinder site.
 
     Parameters
     ----------
+    year : int
+        The year to search classes for.
+    term : str
+        The string version of the term to search classes for. Case insensitive. fall, summer, spring, j-term.
+    subjects : list[str]
+        A list of subject codes to search for. E.g. ["ETLS", "SEIS"].
     major_classes_file_path : str
         Path to the CSV containing a list of major classes. E.g. "ETLS 676,ETLS 679".
 

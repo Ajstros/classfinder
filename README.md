@@ -7,6 +7,3 @@ Grab the available classes for a specified year and term. Optionally filter by o
     * term
     * select only `major_classes.csv` offered in the year and term
     * filter out `taken_classes.csv`
-* Add functionality for
-    * select only `major_classes.csv` offered in the year and term
-    * filter out `taken_classes.csv`
