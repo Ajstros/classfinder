@@ -83,7 +83,7 @@ def read_major_classes(major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
     Parameters
     ----------
     major_classes_file_path : str
-        Path to the CSV containing a list of major classes. E.g. "ETLS 676, ETLS 679".
+        Path to the CSV containing a list of major classes. E.g. "ETLS 676,ETLS 679".
 
     Returns
     -------
@@ -95,6 +95,24 @@ def read_major_classes(major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
         lines = f.readline()
     return lines.strip().split(',')
 
+def read_taken_classes(taken_classes_file_path=DEFAULT_TAKEN_CLASSES_PATH):
+    """Read the classes that you have taken from a CSV list in the file path given.
+
+    Parameters
+    ----------
+    taken_classes_file_path : str
+        Path to the CSV containing a list of taken classes. E.g. "ETLS 676,ETLS 679".
+
+    Returns
+    -------
+    taken_classes : List[str]
+        A list of the taken classes from the CSV. E.g. ["ETLS 676", "ETLS 679"].
+    """
+
+    with open(taken_classes_file_path, 'r') as f:
+        lines = f.readline()
+    return lines.strip().split(',')
+
 def select_major_classes(classes_df, major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
     """Select only the classes that apply to a major from a DataFrame of classes.
 
@@ -103,7 +121,7 @@ def select_major_classes(classes_df, major_classes_file_path=DEFAULT_MAJOR_CLASS
     classes_df : pd.DataFrame
         DataFrame of classes including the Course number, the class Title, and its Description.
     major_classes_file_path : str
-        Path to the CSV containing a list of major classes. E.g. "ETLS 676, ETLS 679".
+        Path to the CSV containing a list of major classes. E.g. "ETLS 676,ETLS 679".
 
     Returns
     -------
@@ -114,13 +132,32 @@ def select_major_classes(classes_df, major_classes_file_path=DEFAULT_MAJOR_CLASS
     major_classes = read_major_classes(major_classes_file_path)
     return classes_df[classes_df["Course"].isin(major_classes)].copy()
 
+def select_not_taken_classes(classes_df, taken_classes_file_path=DEFAULT_TAKEN_CLASSES_PATH):
+    """Select only the classes that have not been taken from a DataFrame of classes.
+
+    Parameters
+    ----------
+    classes_df : pd.DataFrame
+        DataFrame of classes including the Course number, the class Title, and its Description.
+    taken_classes_file_path : str
+        Path to the CSV containing a list of taken classes. E.g. "ETLS 676,ETLS 679".
+
+    Returns
+    -------
+    taken_classes_only_df : pd.DataFrame
+        DataFrame of classes that have not been taken from the given classes including the Course number, the class Title, and its Description. Note this DataFrame is copied out of the given DataFrame.
+    """
+
+    taken_classes = read_taken_classes(taken_classes_file_path)
+    return classes_df[~classes_df["Course"].isin(taken_classes)].copy()
+
 def get_major_classes(year, term, subjects, major_classes_file_path=DEFAULT_MAJOR_CLASSES_PATH):
     """Get only the classes that apply to a major from the classfinder site.
 
     Parameters
     ----------
     major_classes_file_path : str
-        Path to the CSV containing a list of major classes. E.g. "ETLS 676, ETLS 679".
+        Path to the CSV containing a list of major classes. E.g. "ETLS 676,ETLS 679".
 
     Returns
     -------
@@ -136,5 +173,6 @@ if __name__ == "__main__":
     term = 'fall'
     subjects = ["ETLS", "SEIS"]
     major_df = get_major_classes(year, term, subjects)
-    major_df.to_csv(DEFAULT_OUTPUT_PATH)
-    print(major_df)
+    untaken_major_df = select_not_taken_classes(major_df)
+    untaken_major_df.to_csv(DEFAULT_OUTPUT_PATH)
+    print(untaken_major_df)
