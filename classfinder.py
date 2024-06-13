@@ -73,6 +73,24 @@ def get_classes(year, term, subjects):
     df = pd.DataFrame(class_dict)
     return df
 
+def get_major_classes(major_classes_file_path):
+    """Get the classes that apply to a major from a CSV list in the file path given.
+
+    Parameters
+    ----------
+    major_classes_file_path : str
+        Path to the CSV containing a list of major classes. E.g. "ETLS 676, ETLS 679".
+
+    Returns
+    -------
+    major_classes : List[str]
+        A list of the major classes from the CSV. E.g. ["ETLS 676", "ETLS 679"].
+    """
+
+    with open(major_classes_file_path, 'r') as f:
+        lines = f.readline()
+    return lines.strip().split(',')
+
 if __name__ == "__main__":
     year = 2024
     term = 'fall'
