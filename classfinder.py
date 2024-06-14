@@ -4,10 +4,38 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import pandas as pd
+import argparse
+from datetime import datetime
 
 DEFAULT_OUTPUT_PATH = "classes.csv"
 DEFAULT_MAJOR_CLASSES_PATH = "major_classes.csv"
 DEFAULT_TAKEN_CLASSES_PATH = "taken_classes.csv"
+
+def get_year_term(day: datetime) -> tuple[int, str]:
+    """Get the year and term for a specific day.
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+    year, term : int, str
+        The day's year and term (fall, summer, spring, j-term). E.g. ("2024", "fall")
+    """
+
+    year = day.year
+    month = day.month
+    if month == 1:
+        term = 'j-term'
+    elif month <= 5:
+        term = 'spring'
+    elif month <= 8:
+        term = 'summer'
+    else:
+        term = 'fall'
+
+    return year, term
 
 def term_str_to_code(term_string: str) -> int:
     """Convert term string to code for URL.
@@ -174,11 +202,41 @@ def get_major_classes(year: int, term: str, subjects: list[str], major_classes_f
     full_df = get_classes(year=year, term=term, subjects=subjects)
     return select_major_classes(full_df, major_classes_file_path)
 
+
+DEFAULT_YEAR, DEFAULT_TERM = get_year_term(datetime.today())
+DEFAULT_SUBJECTS = ["ETLS", "SEIS"]
+
 if __name__ == "__main__":
-    year = 2024
-    term = 'fall'
-    subjects = ["ETLS", "SEIS"]
-    major_df = get_major_classes(year, term, subjects)
-    untaken_major_df = select_not_taken_classes(major_df)
-    untaken_major_df.to_csv(DEFAULT_OUTPUT_PATH)
-    print(untaken_major_df)
+    parser = argparse.ArgumentParser(
+                        prog='ClassFinder',
+                        description='Pull data from classfinder and filter out to see what relevant classes are offered next semester.',
+    )
+    parser.add_argument('-o', '--output', default=DEFAULT_OUTPUT_PATH, help='output CSV file to write DataFrame to')
+    parser.add_argument('-y', '--year', default=DEFAULT_YEAR, help='year to find classes for')
+    parser.add_argument('-t', '--term', choices=['fall', 'summer', 'spring', 'j-term'], default=DEFAULT_TERM, help='year to find classes for')
+    parser.add_argument('-s', '--subjects', default=DEFAULT_SUBJECTS, help='subjects to find classes from')
+    parser.add_argument('-q', '--quiet', action='store_true', help='suppress all printing. Still outputs to a CSV')
+    parser.add_argument('-m', '--major', nargs='?', const=DEFAULT_MAJOR_CLASSES_PATH, help='find only classes that apply to a major. Uses the given CSV filename to read major classes')
+    parser.add_argument('-f', '--filter-taken', nargs='?', const=DEFAULT_TAKEN_CLASSES_PATH, help='find only classes not yet taken. Uses the given CSV filename to read taken classes')
+
+    args = parser.parse_args()
+    year = args.year
+    term = args.term
+    subjects = args.subjects
+
+    if args.major is not None:
+        if not args.quiet:
+            print(f'Showing only major classes. Reading major classes from {args.major}')
+        df = get_major_classes(year, term, subjects, args.major)
+    else:
+        df = get_classes(year, term, subjects)
+
+    if args.filter_taken is not None:
+        if not args.quiet:
+            print(f'Showing only non-taken classes. Reading taken classes from {args.filter_taken}')
+        df = select_not_taken_classes(df, args.filter_taken)
+    df.to_csv(args.output)
+
+    if not args.quiet:
+        print(f'{term.title()} {year}\n')
+        print(df)

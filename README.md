@@ -3,7 +3,4 @@ Grab the available classes for a specified year and term. Optionally filter by o
 
 # TODO
 * Add flags for:
-    * year
-    * term
-    * select only `major_classes.csv` offered in the year and term
-    * filter out `taken_classes.csv`
+    * Supress multiple sections of the same course
