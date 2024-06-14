@@ -218,6 +218,7 @@ if __name__ == "__main__":
     parser.add_argument('-q', '--quiet', action='store_true', help='suppress all printing. Still outputs to a CSV')
     parser.add_argument('-m', '--major', nargs='?', const=DEFAULT_MAJOR_CLASSES_PATH, help='find only classes that apply to a major. Uses the given CSV filename to read major classes')
     parser.add_argument('-f', '--filter-taken', nargs='?', const=DEFAULT_TAKEN_CLASSES_PATH, help='find only classes not yet taken. Uses the given CSV filename to read taken classes')
+    parser.add_argument('--no-sections', action='store_true', help='do not include the sections column in the CSV or the printed output. Courses with multiple sections will be listed only once')
 
     args = parser.parse_args()
     year = args.year
@@ -235,6 +236,11 @@ if __name__ == "__main__":
         if not args.quiet:
             print(f'Showing only non-taken classes. Reading taken classes from {args.filter_taken}')
         df = select_not_taken_classes(df, args.filter_taken)
+
+    if args.no_sections:
+        df.drop(columns='Section', inplace=True)
+        df.drop_duplicates(inplace=True)
+
     df.to_csv(args.output)
 
     if not args.quiet:
