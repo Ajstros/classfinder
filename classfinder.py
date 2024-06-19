@@ -2,10 +2,10 @@
 
 import requests
 from bs4 import BeautifulSoup
-import json
 import pandas as pd
 import argparse
 from datetime import datetime
+from io import StringIO
 
 DEFAULT_OUTPUT_PATH = "classes.csv"
 DEFAULT_MAJOR_CLASSES_PATH = "major_classes.csv"
@@ -96,8 +96,8 @@ def get_classes(year: int, term: str, subjects: list[str]) -> pd.DataFrame:
             course_number, course_section = elem.span.text.split('-')
             course = f'{current_subject} {course_number}'
             title = elem.strong.text
-            json_data = json.loads(elem.script.text, strict=False)
-            description = json_data['description'].strip()
+            json_data = pd.read_json(StringIO(elem.script.text))
+            description = json_data.drop_duplicates('name')['description'].iat[0].strip()
             class_dict["Course"].append(course)
             class_dict["Section"].append(course_section)
             class_dict["Title"].append(title)
