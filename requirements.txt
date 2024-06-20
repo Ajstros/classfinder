@@ -1,6 +1,3 @@
 requests
 bs4
 pandas
-argparse
-datetime
-io
