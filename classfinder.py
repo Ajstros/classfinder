@@ -1,4 +1,4 @@
-"""Pull data from classfinder and filter out to see what relevant classes are offered next semester."""
+"""Pull data from classfinder and see relevant offered classes."""
 
 import argparse
 from datetime import datetime
@@ -79,14 +79,16 @@ def get_classes(year: int, term: str, subjects: list[str]) -> pd.DataFrame:
     year : int
         The year to search classes for.
     term : str
-        The string version of the term to search classes for. Case insensitive. fall, summer, spring, j-term.
+        The string version of the term to search classes for. Case insensitive.
+        Must be fall, summer, spring, j-term.
     subjects : list[str]
         A list of subject codes to search for. E.g. ["ETLS", "SEIS"].
 
     Returns
     -------
     classes_df : pd.DataFrame
-        DataFrame of the classes found including the Course number, the class Title, and its Description.
+        DataFrame of the classes found including the Course number, the class Title,
+        and its Description.
     """
 
     term_code = term_str_to_code(term)
@@ -170,14 +172,17 @@ def select_major_classes(
     Parameters
     ----------
     classes_df : pd.DataFrame
-        DataFrame of classes including the Course number, the class Title, and its Description.
+        DataFrame of classes including the Course number, the class Title,
+        and its Description.
     major_classes_file_path : str
         Path to the CSV containing a list of major classes. E.g. "ETLS 676,ETLS 679".
 
     Returns
     -------
     major_classes_only_df : pd.DataFrame
-        DataFrame of classes that apply to a major from the given classes including the Course number, the class Title, and its Description. Note this DataFrame is copied out of the given DataFrame.
+        DataFrame of classes that apply to a major from the given classes including
+        the Course number, the class Title, and its Description. Note this DataFrame
+        is copied out of the given DataFrame.
     """
 
     major_classes = read_major_classes(major_classes_file_path)
@@ -192,14 +197,17 @@ def select_not_taken_classes(
     Parameters
     ----------
     classes_df : pd.DataFrame
-        DataFrame of classes including the Course number, the class Title, and its Description.
+        DataFrame of classes including the Course number, the class Title,
+        and its Description.
     taken_classes_file_path : str
         Path to the CSV containing a list of taken classes. E.g. "ETLS 676,ETLS 679".
 
     Returns
     -------
     taken_classes_only_df : pd.DataFrame
-        DataFrame of classes that have not been taken from the given classes including the Course number, the class Title, and its Description. Note this DataFrame is copied out of the given DataFrame.
+        DataFrame of classes that have not been taken from the given classes including
+        the Course number, the class Title, and its Description. Note this DataFrame
+        is copied out of the given DataFrame.
     """
 
     taken_classes = read_taken_classes(taken_classes_file_path)
@@ -219,7 +227,8 @@ def get_major_classes(
     year : int
         The year to search classes for.
     term : str
-        The string version of the term to search classes for. Case insensitive. fall, summer, spring, j-term.
+        The string version of the term to search classes for. Case insensitive.
+        Must be fall, summer, spring, j-term.
     subjects : list[str]
         A list of subject codes to search for. E.g. ["ETLS", "SEIS"].
     major_classes_file_path : str
@@ -228,7 +237,8 @@ def get_major_classes(
     Returns
     -------
     major_classes_only_df : pd.DataFrame
-        DataFrame of classes that apply to a major from the given classes including the Course number, the class Title, and its Description.
+        DataFrame of classes that apply to a major from the given classes including
+        the Course number, the class Title, and its Description.
     """
 
     full_df = get_classes(year=year, term=term, subjects=subjects)
@@ -241,7 +251,8 @@ DEFAULT_SUBJECTS = ["ETLS", "SEIS"]
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="ClassFinder",
-        description="Pull data from classfinder and filter out to see what relevant classes are offered next semester.",
+        description="Pull data from classfinder and filter out to see what relevant \
+            classes are offered next semester.",
     )
     parser.add_argument(
         "-o",
@@ -276,19 +287,22 @@ if __name__ == "__main__":
         "--major",
         nargs="?",
         const=DEFAULT_MAJOR_CLASSES_PATH,
-        help="find only classes that apply to a major. Uses the given CSV filename to read major classes",
+        help="find only classes that apply to a major. Uses the given CSV filename \
+            to read major classes",
     )
     parser.add_argument(
         "-f",
         "--filter-taken",
         nargs="?",
         const=DEFAULT_TAKEN_CLASSES_PATH,
-        help="find only classes not yet taken. Uses the given CSV filename to read taken classes",
+        help="find only classes not yet taken. Uses the given CSV filename to read \
+            taken classes",
     )
     parser.add_argument(
         "--no-sections",
         action="store_true",
-        help="do not include the sections column in the CSV or the printed output. Courses with multiple sections will be listed only once",
+        help="do not include the sections column in the CSV or the printed output. \
+            Courses with multiple sections will be listed only once",
     )
 
     args = parser.parse_args()
@@ -308,7 +322,8 @@ if __name__ == "__main__":
     if args.filter_taken is not None:
         if not args.quiet:
             print(
-                f"Showing only non-taken classes. Reading taken classes from {args.filter_taken}"
+                f"Showing only non-taken classes. \
+                    Reading taken classes from {args.filter_taken}"
             )
         df = select_not_taken_classes(df, args.filter_taken)
 
