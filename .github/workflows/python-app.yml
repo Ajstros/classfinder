@@ -31,7 +31,7 @@ jobs:
     - name: Lint with ruff
       run: |
         # stop the build ruff finds errors
-        ruff --check
+        ruff check
     - name: Test with pytest
       run: |
         pytest
