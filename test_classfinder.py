@@ -1,8 +1,11 @@
 """Tests for classfinder script."""
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
 import classfinder
+import random
 
 month_term_dict = {
     1 : 'j-term',
@@ -29,9 +32,6 @@ def test_get_year_term():
 
 @pytest.mark.parametrize('term_str', [
     'fall', 'summer', 'spring', 'j-term',
-    'FALL', 'SUMMER', 'SPRING', 'J-TERM',
-    'Fall', 'Summer', 'Spring', 'J-term',
-    'J-Term',
 ])
 def test_term_str_to_code(term_str):
     term_dict = {
@@ -40,7 +40,17 @@ def test_term_str_to_code(term_str):
         'spring' : 20,
         'j-term' : 10,
     }
-    assert classfinder.term_str_to_code(term_str) == term_dict[term_str.lower()]
+    term_code = term_dict[term_str]
+
+    # Now randomize capitalization
+    num_caps = random.randint(0, len(term_str))
+    remaining_chars = list(range(0, len(term_str)))
+    for n in range(num_caps):
+        char_pos = random.choice(remaining_chars)
+        remaining_chars.remove(char_pos)
+        term_str = term_str[0:char_pos] + term_str[char_pos].upper() + term_str[char_pos+1:]
+
+    assert classfinder.term_str_to_code(term_str) == term_code
 
 @pytest.mark.skip()
 def test_get_classes():
