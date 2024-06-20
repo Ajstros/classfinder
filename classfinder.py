@@ -14,9 +14,17 @@ DEFAULT_TAKEN_CLASSES_PATH = "taken_classes.csv"
 def get_year_term(day: datetime) -> tuple[int, str]:
     """Get the year and term for a specific day.
 
+    | Month   | Term   |
+    |:--------|:-------|
+    | 1       | j-term |
+    | 2-5     | spring |
+    | 6-8     | summer |
+    | 9-12    | fall   |
+
     Parameters
     ----------
-
+    day : datetime
+        Datetime object for the day to get the year and term from.
 
     Returns
     -------
