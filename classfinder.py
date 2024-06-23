@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 DEFAULT_OUTPUT_PATH = "classes.csv"
 DEFAULT_MAJOR_CLASSES_PATH = "major_classes.csv"
 DEFAULT_TAKEN_CLASSES_PATH = "taken_classes.csv"
+BASE_URL = "https://classes.aws.stthomas.edu/index.htm?year={0}&term={1}&schoolCode=ALL&levelCode=ALL&selectedSubjects={2}#advancedSearch"
 
 
 def get_year_term(day: datetime) -> tuple[int, str]:
@@ -92,7 +93,7 @@ def get_classes(year: int, term: str, subjects: list[str]) -> pd.DataFrame:
     """
 
     term_code = term_str_to_code(term)
-    url = f"https://classes.aws.stthomas.edu/index.htm?year={year}&term={term_code}&schoolCode=ALL&levelCode=ALL&selectedSubjects={','.join(subjects)}#advancedSearch"
+    url = BASE_URL.format(year, term_code, ','.join(subjects))
     page = requests.get(url)
     soup = BeautifulSoup(page.content, "html.parser")
 

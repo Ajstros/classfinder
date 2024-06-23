@@ -4,8 +4,12 @@ import random
 from datetime import datetime, timedelta
 
 import pytest
+import requests
 
 import classfinder
+
+years_prev = 4
+years_next = 4
 
 month_term_dict = {
     1: "j-term",
@@ -22,10 +26,17 @@ month_term_dict = {
     12: "fall",
 }
 
+term_dict = {
+    "fall": 40,
+    "summer": 30,
+    "spring": 20,
+    "j-term": 10,
+}
+
 
 def test_get_year_term():
-    days_prev = 4 * 365
-    days_next = 4 * 365
+    days_prev = years_prev * 365
+    days_next = years_next * 365
     today = datetime.today()
     date_range = [today - timedelta(days=x) for x in range(days_prev)] + [
         today + timedelta(days=x) for x in range(days_next)
@@ -44,12 +55,6 @@ def test_get_year_term():
     ],
 )
 def test_term_str_to_code(term_str):
-    term_dict = {
-        "fall": 40,
-        "summer": 30,
-        "spring": 20,
-        "j-term": 10,
-    }
     term_code = term_dict[term_str]
 
     # Now randomize capitalization
@@ -63,6 +68,19 @@ def test_term_str_to_code(term_str):
         )
 
     assert classfinder.term_str_to_code(term_str) == term_code
+
+def test_classfinder_connection():
+    """Just test the connection to the classfinder site.
+
+    Use a few year and term combinations and just make sure there are no errors.
+    """
+
+    today_year = datetime.today().year
+    subjects = classfinder.DEFAULT_SUBJECTS
+    for year in range(today_year - years_prev, today_year + years_next + 1):
+        for term_code in term_dict.values():
+            url = classfinder.BASE_URL.format(year, term_code, ','.join(subjects))
+            page = requests.get(url)
 
 
 @pytest.mark.skip()
